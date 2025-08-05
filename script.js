@@ -1,6 +1,3 @@
-// This is the boilerplate code given for you
-// You can modify this code
-// Product data
 const products = [
   { id: 1, name: "Product 1", price: 10 },
   { id: 2, name: "Product 2", price: 20 },
@@ -9,30 +6,65 @@ const products = [
   { id: 5, name: "Product 5", price: 50 },
 ];
 
-// DOM elements
-const productList = document.getElementById("product-list");
+const productListEl = document.getElementById("product-list");
+const cartListEl = document.getElementById("cart-list");
+const clearCartBtn = document.getElementById("clear-cart-btn");
 
-// Render product list
-function renderProducts() {
-  products.forEach((product) => {
-    const li = document.createElement("li");
-    li.innerHTML = `${product.name} - $${product.price} <button class="add-to-cart-btn" data-id="${product.id}">Add to Cart</button>`;
-    productList.appendChild(li);
-  });
+let cart = [];
+
+// Load cart from sessionStorage
+function loadCart() {
+  const savedCart = sessionStorage.getItem("cart");
+  if (savedCart) {
+    try {
+      cart = JSON.parse(savedCart);
+      cart.forEach(renderCartItem);
+    } catch (e) {
+      cart = [];
+    }
+  }
 }
 
-// Render cart list
-function renderCart() {}
+// Save cart to sessionStorage
+function saveCart() {
+  sessionStorage.setItem("cart", JSON.stringify(cart));
+}
 
-// Add item to cart
-function addToCart(productId) {}
+// Render a product in the product list
+function renderProduct(product) {
+  const li = document.createElement("li");
+  li.textContent = `${product.name} - $${product.price} `;
 
-// Remove item from cart
-function removeFromCart(productId) {}
+  const addButton = document.createElement("button");
+  addButton.textContent = "Add to Cart";
+  addButton.addEventListener("click", () => {
+    cart.push(product);
+    renderCartItem(product);
+    saveCart();
+  });
 
-// Clear cart
-function clearCart() {}
+  li.appendChild(addButton);
+  productListEl.appendChild(li);
+}
 
-// Initial render
-renderProducts();
-renderCart();
+// Render a cart item in the cart list
+function renderCartItem(product) {
+  const li = document.createElement("li");
+  li.textContent = `${product.name} - $${product.price}`;
+  cartListEl.appendChild(li);
+}
+
+// Clear cart logic
+clearCartBtn.addEventListener("click", () => {
+  cart = [];
+  cartListEl.innerHTML = "";
+  sessionStorage.removeItem("cart");
+});
+
+// Initialize page
+function init() {
+  products.forEach(renderProduct);
+  loadCart();
+}
+
+init();
